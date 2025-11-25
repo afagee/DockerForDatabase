@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  db:
+    image: track-metadata-db:latest
+    container_name: track_metadata_db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../:/workspace:ro
+      - ./imports:/imports
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-track_user} -d ${POSTGRES_DB:-track_metadata}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+
